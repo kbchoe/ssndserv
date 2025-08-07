@@ -6,17 +6,63 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<title>Smart Structures &amp; Design Lab</title>
 	<meta name="Keywords" content="Mechanical Engineering">
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
+
+    #top {
+      height: 95px;
+      border-bottom: 1px solid #CCCCCC;
+    }
+
+    #body {
+      display: flex;
+      height: calc(100% - 95px);
+    }
+
+    #left {
+      width: 260px;
+      min-width: 200px;
+      border-right: 1px solid #CCC;
+    }
+
+    #main {
+      flex: 1;
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    @media (max-width: 768px) {
+      #left {
+        display: none;
+      }
+    }
+  </style>
 </head>
 
-<frameset rows="95,*" frameborder="0" marginwidth="0" marginheight="0">
-<frame src="./intro_files/top.html" name="top" scrolling="no" marginwidth="0" marginheight="0" noresize="" style="border-bottom-style: solid; border-bottom-width: 1; border-bottom-color: CCCCCC">
+<body>  
+	
+  <div id="top">
+    <iframe src="./intro_files/top.html" name="top"></iframe>
+  </div>
 
-<frameset cols="260,*" frameborder="0" marginwidth="0">
+  <div id="body">
+    <div id="left">
+      <iframe src="./intro_files/left.html" name="left"></iframe>
+    </div>
+    <div id="main">
+      <iframe src="mem_prof.html" name="main"></iframe>
+    </div>
+  </div>
 
-<frame src="./intro_files/left.html" name="left" scrolling="no" marginwidth="1" marginheight="0" noresize="">
-<frame src="mem_prof.html" name="main" scrolling="yes" marginwidth="5" marginheight="5" noresize="">
-</frameset>
-</frameset>
-
+</body>
 
 </html>
