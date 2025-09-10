@@ -1,0 +1,218 @@
+
+<!-- saved from url=(0030)http://ssndlab.com/notice.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>Smart Structures &amp; Design Lab</title>
+		<link href="./admin2.css" rel="stylesheet" type="text/css">
+	</head>
+	<body>
+		<div id="container">
+			<div class="cont_nav">&nbsp;</div>
+			<h3>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;공지사항</h3>
+			<div class="sch_top"></div>
+		</div>
+
+		<div class="cont">
+			<table width="95%" class="tb_01" cellpadding="0" cellspacing="0">
+				<colgroup>
+					<col width="80">
+					<col width="*">
+					<col width="100">
+					<col width="100">
+				</colgroup>
+				<thead>
+					<tr>
+						<th>NO</th>
+						<th>TITLE</th>
+						<th>WRITER</th>
+						<th>DATE</th>
+					</tr>
+				</thead>
+				
+				<tbody id=articles>
+				  <tr>
+					<td class="txtC">1</td>
+					<td class="txtL"><a href="#">제목</a></td>
+					<td class="txtC">관리자</td>
+					<td class="txtC">2020-08-21</td>
+				  </tr>					
+				  <tr>
+					<td class="txtC">2</td>
+					<td class="txtL"><a href="#">제목</a></td>
+					<td class="txtC">관리자</td>
+					<td class="txtC">2020-08-21</td>
+				  </tr>					
+				  <tr>
+					<td class="txtC">3</td>
+					<td class="txtL"><a href="#">제목</a></td>
+					<td class="txtC">관리자</td>
+					<td class="txtC">2020-08-21</td>
+				  </tr>				
+				</tbody>
+				
+				<tbody>
+				</tbody>
+			</table>
+		</div>
+
+<div class="paginate_regular" id="pagination">
+<a href="JavaScript:onPage(/notice.html?page=1)">1</a>
+<a href="JavaScript:onPage(/notice.html?page=2)">2</a>
+<a href="JavaScript:onPage(/notice.html?page=3)">3</a>
+<a href="JavaScript:onPage(/notice.html?page=4)">4</a>
+<a href="JavaScript:onPage(/notice.html?page=5)">5</a>
+<a href="JavaScript:onPage(/notice.html?page=6)">6</a>
+<a href="JavaScript:onPage(/notice.html?page=7)">7</a>
+<a href="JavaScript:onPage(/notice.html?page=8)">8</a>
+<a href="JavaScript:onPage(/notice.html?page=9)">9</a>
+<a href="JavaScript:onPage(/notice.html?page=10)">10</a>
+<a href="JavaScript:onPage(/notice.html?page=2)">다음</a>
+</div>
+
+<form name="mainForm" method="post">
+	<input type="hidden" name="NoticeSeq">
+	<input type="hidden" name="mNumber">
+</form>
+<script language="JavaScript">
+	function onView (NoticeSeq) {
+		var Frm = document.mainForm;
+		Frm.NoticeSeq.value = NoticeSeq;
+		Frm.action = "./notice/notice_view.php";
+		Frm.submit ();
+	}
+
+	function onPage (Url) {
+		var Frm = document.mainForm;
+		Frm.action = Url;
+		Frm.submit ();
+	}
+</script>
+
+
+<script>
+
+function parseTextBlocks_(text) {
+  const blocks = text.split('///////..( / 16개)');
+  return blocks.map(block => {
+    //const lines = block.trim().split('\n');
+    const lines = block.replace(/\r/g, '').trim().split('\n');
+    const title = lines[0] || '';
+    const date = lines[1] || '';
+    const file = lines[2] || '';
+    const body = lines.slice(3).join('\n');
+    return { title, date, file, body };
+  });
+}
+
+function parseTextBlocks(text) {
+  const blocks = text.split('///////////////'); // 구분자만으로 split
+  return blocks
+    .map(block => {
+      const lines = block.replace(/\r/g, '').trim().split('\n');
+      if (lines.length < 1 || !lines[0].trim()) return null; // 빈 블록 무시
+      const title = lines[0] || '';
+      const date = lines[1] || '';
+      const file = lines[2] || '';
+      const body = lines.slice(3).join('\n');
+      return { title, date, file, body };
+    })
+    .filter(b => b); // null 제거
+}
+
+const article_box = document.querySelector('#articles'); // 삽입할 tbody 선택
+
+fetch('newone.txt')
+  .then(response => {
+    if (!response.ok) throw new Error('파일 로드 실패');
+    return response.text();
+  })
+  .then(text => {
+    //console.log(text); // txt 내용
+    const blocks = parseTextBlocks(text);
+    blocks.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    const totalPages = Math.ceil(blocks.length / 10); // 예: 132 -> 14페이지
+
+    const paginationContainer = document.querySelector('#pagination'); // 페이지 링크 넣을 영역
+	let html_page = '';
+
+	for (let i = 1; i <= totalPages; i++) {
+	  html_page += `<a href="#${i}" class="page-link" data-page="${i}">${i}</a> `;
+	}
+	paginationContainer.innerHTML = html_page;
+
+	blocks.forEach((block, idx) => {
+	  block.no = blocks.length - idx; // 120개면 idx=0 → 120, idx=1 → 119 ...
+	});
+    let html = '';    
+    //blocks.forEach(block => {
+	blocks.forEach((block, idx) => {
+      console.log(block.file);      
+      html += `
+          <tr>
+	      <td class="txtC">${block.no}</td>
+	      <td class="txtL"><a href="JavaScript:onView(${idx})">${block.title}</a></td>
+	      <td class="txtC">관리자</td>
+	      <td class="txtC">${block.date}</td>
+	      </tr>
+		  `;
+    })
+
+    article_box.innerHTML = html;
+
+    ;
+  })
+  .catch(err => console.error(err));
+
+// const itemsPerPage = 10;
+// const totalItems = blocks.length;
+// const totalPages = Math.ceil(totalItems / itemsPerPage); // 예: 132 -> 14페이지
+
+// const paginationContainer = document.querySelector('#pagination'); // 페이지 링크 넣을 영역
+// let html = '';
+
+// for (let i = 1; i <= totalPages; i++) {
+//   html += `<a href="#" class="page-link" data-page="${i}">${i}</a> `;
+// }
+// paginationContainer.innerHTML = html;
+
+// // 클릭 이벤트 연결
+// document.querySelectorAll('.page-link').forEach(a => {
+//   a.addEventListener('click', e => {
+//     e.preventDefault();
+//     const page = parseInt(a.dataset.page);
+//     renderPage(page); // 해당 페이지 내용 렌더링 함수 호출
+//   });
+// });
+
+// // 예시 renderPage 함수
+// function renderPage(page) {
+//   const start = (page - 1) * itemsPerPage;
+//   const end = start + itemsPerPage;
+//   const pageBlocks = blocks.slice(start, end);
+
+//   const tbody = document.querySelector('#myTbody');
+//   let rows = '';
+//   pageBlocks.forEach((b, idx) => {
+//     rows += `
+//       <tr>
+//         <td class="txtC">${start + idx + 1}</td>
+//         <td class="txtL"><a href="JavaScript:onView(${start + idx})">${b.title}</a></td>
+//         <td class="txtC">관리자</td>
+//         <td class="txtC">${b.date}</td>
+//       </tr>
+//     `;
+//   });
+//   tbody.innerHTML = rows;
+// }
+
+// // 초기 페이지 렌더링
+// renderPage(1);
+
+
+</script>
+
+
+</body></html>
+
+
+
