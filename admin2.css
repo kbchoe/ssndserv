@@ -51,7 +51,7 @@ a:hover, a:active, a:focus {text-decoration:none;color:#6e6e6e;}
 /* Layout */
 #wrap{width:1024px;margin:0 auto}
 #header{width:1024px;height:130px;}
-#container{clear:both;width:1024px}
+#container{clear:both;width:auto}
 #container:after{display:block;clear:both;content:''}
 #content{float:right;width:848px;padding-left:10px;}
 #footer{width:1024px;text-align:center;color:#666666;border-top:2px solid #cecece;padding-top:5px;}
