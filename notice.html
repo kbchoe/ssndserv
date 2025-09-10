@@ -55,37 +55,19 @@
 		</div>
 
 <div class="paginate_regular" id="pagination">
-<a href="JavaScript:onPage(/notice.html?page=1)">1</a>
-<a href="JavaScript:onPage(/notice.html?page=2)">2</a>
-<a href="JavaScript:onPage(/notice.html?page=3)">3</a>
-<a href="JavaScript:onPage(/notice.html?page=4)">4</a>
-<a href="JavaScript:onPage(/notice.html?page=5)">5</a>
-<a href="JavaScript:onPage(/notice.html?page=6)">6</a>
-<a href="JavaScript:onPage(/notice.html?page=7)">7</a>
-<a href="JavaScript:onPage(/notice.html?page=8)">8</a>
-<a href="JavaScript:onPage(/notice.html?page=9)">9</a>
-<a href="JavaScript:onPage(/notice.html?page=10)">10</a>
-<a href="JavaScript:onPage(/notice.html?page=2)">다음</a>
+<a href="JavaScript:onPage(1)">1</a>
+<a href="JavaScript:onPage(2)">2</a>
+<a href="JavaScript:onPage(3)">3</a>
+<a href="JavaScript:onPage(4)">4</a>
+<a href="JavaScript:onPage(5)">5</a>
+<a href="JavaScript:onPage(2)">다음</a>
 </div>
 
 <form name="mainForm" method="post">
 	<input type="hidden" name="NoticeSeq">
 	<input type="hidden" name="mNumber">
 </form>
-<script language="JavaScript">
-	function onView (NoticeSeq) {
-		var Frm = document.mainForm;
-		Frm.NoticeSeq.value = NoticeSeq;
-		Frm.action = "./notice/notice_view.php";
-		Frm.submit ();
-	}
 
-	function onPage (Url) {
-		var Frm = document.mainForm;
-		Frm.action = Url;
-		Frm.submit ();
-	}
-</script>
 
 
 <script>
@@ -120,6 +102,9 @@ function parseTextBlocks(text) {
 
 const article_box = document.querySelector('#articles'); // 삽입할 tbody 선택
 
+var pagenum = 1;
+var blocks;
+
 fetch('newone.txt')
   .then(response => {
     if (!response.ok) throw new Error('파일 로드 실패');
@@ -127,7 +112,7 @@ fetch('newone.txt')
   })
   .then(text => {
     //console.log(text); // txt 내용
-    const blocks = parseTextBlocks(text);
+    blocks = parseTextBlocks(text);
     blocks.sort((a, b) => new Date(b.date) - new Date(a.date));
 
     const totalPages = Math.ceil(blocks.length / 10); // 예: 132 -> 14페이지
@@ -136,77 +121,101 @@ fetch('newone.txt')
 	let html_page = '';
 
 	for (let i = 1; i <= totalPages; i++) {
-	  html_page += `<a href="#${i}" class="page-link" data-page="${i}">${i}</a> `;
+	  html_page += `<a href="JavaScript:onPage(${i})" >${i}</a> `;
 	}
 	paginationContainer.innerHTML = html_page;
 
 	blocks.forEach((block, idx) => {
 	  block.no = blocks.length - idx; // 120개면 idx=0 → 120, idx=1 → 119 ...
 	});
-    let html = '';    
     //blocks.forEach(block => {
-	blocks.forEach((block, idx) => {
-      console.log(block.file);      
-      html += `
-          <tr>
-	      <td class="txtC">${block.no}</td>
-	      <td class="txtL"><a href="JavaScript:onView(${idx})">${block.title}</a></td>
+	onPage(1);
+  })
+  .catch(err => console.error(err))
+
+function onView (block_idx) {
+	block = blocks[block_idx];
+	block.title;
+	block.date;
+	block.file;
+	block.body;
+
+
+	let article_box = document.querySelector('#articles'); // 삽입할 tbody 선택
+	
+	let img_html = '';
+	if (block.file) { // block.file이 있으면 이미지
+	  img_html = `<br><br><img src="/board_files/${block.file}" alt="${block.file}" width="600" height=auto>`
+	}
+
+    let html = '';
+    html += `
+			<div class="cont">	    	
+	    	<table width="100%" class="tb_01_reg" cellpadding="0" cellspacing="0">
+			
+			<colgroup>
+				<col width="20%">
+				<col width="*">
+			</colgroup>
+			
+			<tbody>
+				<tr>
+					<th>제목</th>
+					<td>${block.title}</td>
+				</tr>
+
+				<tr>
+					<th>첨부파일</th>
+					<td>
+					<a href="/board_files/${block.file}">${block.file}</a>
+					</td>
+				</tr>
+
+				<tr>
+					<th>내용</th>
+					<td>
+					${block.body.replace(/\n/g, '<br>')}
+					${img_html}
+					</td>
+				</tr>
+			</tbody>
+			
+			</table>
+			</div>
+
+			<div class="btn_r">
+				<a href="JavaScript:onPage(${pagenum})"><img src="btn_list.gif" alt="list"></a>
+			</div>
+	  `;
+	article_box.innerHTML = html;
+    
+}
+
+
+function onPage(num) {
+	pagenum = num;
+    let html = '';
+	const perPage = 10;
+	//const start = blocks.length - (pagenum - 1) * perPage;
+	const start = (pagenum) * perPage;
+	const pageBlocks = blocks.slice(Math.max(start - perPage, 0), start);
+	pageBlocks.forEach((block, idx) => {
+	//<td class="txtL"><a href="JavaScript:onView(${blocks.indexOf(block)})">${block.title}</a></td>
+	let blocks_len = blocks.length;
+	let block_idx = blocks.indexOf(block)
+	//<td class="txtL"><a href="#" onclick="onView(${block_idx})">${block.title}</a></td>
+	html += `
+	    <tr>
+	      <td class="txtC">${blocks_len-block_idx}</td>
+		  <td class="txtL"><a href="JavaScript:onView(${block_idx})">${block.title}</a></td>
 	      <td class="txtC">관리자</td>
 	      <td class="txtC">${block.date}</td>
-	      </tr>
-		  `;
-    })
-
+	    </tr>
+	  `;
+	});
     article_box.innerHTML = html;
+}
 
-    ;
-  })
-  .catch(err => console.error(err));
-
-// const itemsPerPage = 10;
-// const totalItems = blocks.length;
-// const totalPages = Math.ceil(totalItems / itemsPerPage); // 예: 132 -> 14페이지
-
-// const paginationContainer = document.querySelector('#pagination'); // 페이지 링크 넣을 영역
-// let html = '';
-
-// for (let i = 1; i <= totalPages; i++) {
-//   html += `<a href="#" class="page-link" data-page="${i}">${i}</a> `;
-// }
-// paginationContainer.innerHTML = html;
-
-// // 클릭 이벤트 연결
-// document.querySelectorAll('.page-link').forEach(a => {
-//   a.addEventListener('click', e => {
-//     e.preventDefault();
-//     const page = parseInt(a.dataset.page);
-//     renderPage(page); // 해당 페이지 내용 렌더링 함수 호출
-//   });
-// });
-
-// // 예시 renderPage 함수
-// function renderPage(page) {
-//   const start = (page - 1) * itemsPerPage;
-//   const end = start + itemsPerPage;
-//   const pageBlocks = blocks.slice(start, end);
-
-//   const tbody = document.querySelector('#myTbody');
-//   let rows = '';
-//   pageBlocks.forEach((b, idx) => {
-//     rows += `
-//       <tr>
-//         <td class="txtC">${start + idx + 1}</td>
-//         <td class="txtL"><a href="JavaScript:onView(${start + idx})">${b.title}</a></td>
-//         <td class="txtC">관리자</td>
-//         <td class="txtC">${b.date}</td>
-//       </tr>
-//     `;
-//   });
-//   tbody.innerHTML = rows;
-// }
-
-// // 초기 페이지 렌더링
-// renderPage(1);
 
 
 </script>
